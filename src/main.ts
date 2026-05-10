@@ -241,20 +241,21 @@ if (!app) {
   throw new Error('Elemento #app não encontrado.')
 }
 
-let screen: 'closed' | 'blessing' | 'choose' | 'letter' | 'closing' = 'closed'
+let screen: 'closed' | 'reveal' | 'blessing' | 'choose' | 'letter' | 'closing' = 'closed'
 let activeLetter: LetterId | null = null
 let activeStep = 0
-let soundEnabled = false
+let musicEnabled = false
 const readLetters = new Set<LetterId>()
 let tributeAudio: TributeAudio | null = null
+let revealTimer: number | null = null
 
 const photo = (index: number) => photos[index]
 
 class TributeAudio {
   private context: AudioContext
   private master: GainNode
-  private ambientTimer: number | null = null
-  private ambientStep = 0
+  private musicTimer: number | null = null
+  private musicBar = 0
 
   constructor() {
     const AudioContextConstructor =
@@ -267,7 +268,7 @@ class TributeAudio {
 
     this.context = new AudioContextConstructor()
     this.master = this.context.createGain()
-    this.master.gain.value = 0.18
+    this.master.gain.value = 0.22
     this.master.connect(this.context.destination)
   }
 
@@ -277,29 +278,49 @@ class TributeAudio {
     }
   }
 
-  startAmbient() {
-    if (this.ambientTimer !== null) return
+  startMusic() {
+    if (this.musicTimer !== null) return
 
-    this.playAmbientNote()
-    this.ambientTimer = window.setInterval(() => this.playAmbientNote(), 3100)
+    this.playMusicBar()
+    this.musicTimer = window.setInterval(() => this.playMusicBar(), 4200)
   }
 
-  stopAmbient() {
-    if (this.ambientTimer === null) return
+  stopMusic() {
+    if (this.musicTimer === null) return
 
-    window.clearInterval(this.ambientTimer)
-    this.ambientTimer = null
+    window.clearInterval(this.musicTimer)
+    this.musicTimer = null
   }
 
-  playOpen() {
-    this.playTone(523.25, 0.56, 0, 0.045)
-    this.playTone(659.25, 0.64, 0.08, 0.035)
-    this.playTone(783.99, 0.74, 0.16, 0.03)
+  playGiftReveal() {
+    for (let index = 0; index < 30; index += 1) {
+      const delay = index * 0.055
+      const volume = 0.018 + index * 0.0015
+      this.playNoise(0.036, delay, volume, 900)
+      if (index % 4 === 0) {
+        this.playTone(95, 0.08, delay, 0.038, 'triangle')
+      }
+    }
+
+    this.playTone(130.81, 0.18, 1.78, 0.06, 'triangle')
+    this.playTone(261.63, 0.48, 1.92, 0.048)
+    this.playTone(329.63, 0.55, 2.05, 0.042)
+    this.playTone(392, 0.66, 2.18, 0.04)
+    this.playTone(523.25, 0.86, 2.42, 0.034)
+    this.playTone(1046.5, 0.32, 2.58, 0.018, 'triangle')
   }
 
-  playPage() {
-    this.playTone(392, 0.18, 0, 0.028, 'triangle')
-    this.playTone(587.33, 0.22, 0.08, 0.022, 'sine')
+  playGiftChime() {
+    this.playTone(523.25, 0.34, 0, 0.032)
+    this.playTone(659.25, 0.42, 0.08, 0.026)
+    this.playTone(783.99, 0.52, 0.16, 0.024)
+    this.playTone(1046.5, 0.3, 0.28, 0.014, 'triangle')
+  }
+
+  playPaperTurn() {
+    this.playNoise(0.08, 0, 0.018, 2600)
+    this.playTone(392, 0.16, 0.02, 0.018, 'triangle')
+    this.playTone(587.33, 0.2, 0.09, 0.016, 'sine')
   }
 
   playFinish() {
@@ -308,12 +329,25 @@ class TributeAudio {
     this.playTone(659.25, 0.56, 0.3, 0.028)
   }
 
-  private playAmbientNote() {
-    const notes = [329.63, 392, 493.88, 587.33, 493.88, 392]
-    const frequency = notes[this.ambientStep % notes.length]
-    this.ambientStep += 1
-    this.playTone(frequency, 1.8, 0, 0.014, 'sine')
-    this.playTone(frequency * 2, 1.4, 0.18, 0.006, 'triangle')
+  private playMusicBar() {
+    const progression = [
+      [261.63, 329.63, 392],
+      [220, 329.63, 440],
+      [196, 293.66, 392],
+      [246.94, 329.63, 493.88],
+    ]
+    const chord = progression[this.musicBar % progression.length]
+    this.musicBar += 1
+
+    chord.forEach((frequency, index) => {
+      this.playTone(frequency, 3.7, index * 0.04, 0.006, 'sine')
+      this.playTone(frequency * 2, 2.4, 0.35 + index * 0.08, 0.0035, 'triangle')
+    })
+
+    const melody = [chord[1] * 2, chord[2] * 2, chord[1] * 2, chord[0] * 2, chord[2] * 1.5]
+    melody.forEach((frequency, index) => {
+      this.playTone(frequency, 0.7, 0.28 + index * 0.56, 0.011, 'triangle')
+    })
   }
 
   private playTone(
@@ -336,6 +370,33 @@ class TributeAudio {
     gain.connect(this.master)
     oscillator.start(start)
     oscillator.stop(start + duration + 0.04)
+  }
+
+  private playNoise(duration: number, delay = 0, volume = 0.02, filterFrequency = 1200) {
+    const start = this.context.currentTime + delay
+    const bufferSize = Math.max(1, Math.floor(this.context.sampleRate * duration))
+    const buffer = this.context.createBuffer(1, bufferSize, this.context.sampleRate)
+    const data = buffer.getChannelData(0)
+
+    for (let index = 0; index < bufferSize; index += 1) {
+      data[index] = (Math.random() * 2 - 1) * (1 - index / bufferSize)
+    }
+
+    const source = this.context.createBufferSource()
+    const filter = this.context.createBiquadFilter()
+    const gain = this.context.createGain()
+
+    source.buffer = buffer
+    filter.type = 'bandpass'
+    filter.frequency.setValueAtTime(filterFrequency, start)
+    filter.Q.setValueAtTime(1.6, start)
+    gain.gain.setValueAtTime(0.0001, start)
+    gain.gain.exponentialRampToValueAtTime(volume, start + 0.01)
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + duration)
+    source.connect(filter)
+    filter.connect(gain)
+    gain.connect(this.master)
+    source.start(start)
   }
 }
 
@@ -361,24 +422,27 @@ const getAudio = async () => {
   return tributeAudio
 }
 
-const playSound = (sound: 'open' | 'page' | 'finish') => {
-  if (!soundEnabled || !tributeAudio) return
-
-  if (sound === 'open') tributeAudio.playOpen()
-  if (sound === 'page') tributeAudio.playPage()
-  if (sound === 'finish') tributeAudio.playFinish()
+const playEffect = (sound: 'reveal' | 'chime' | 'page' | 'finish') => {
+  getAudio()
+    .then((audio) => {
+      if (sound === 'reveal') audio.playGiftReveal()
+      if (sound === 'chime') audio.playGiftChime()
+      if (sound === 'page') audio.playPaperTurn()
+      if (sound === 'finish') audio.playFinish()
+    })
+    .catch(() => undefined)
 }
 
-const renderSoundToggle = () => `
+const renderMusicToggle = () => `
   <button
-    class="sound-toggle ${soundEnabled ? 'is-on' : ''}"
+    class="music-toggle ${musicEnabled ? 'is-on' : ''}"
     type="button"
-    data-action="toggle-sound"
-    aria-pressed="${soundEnabled}"
-    aria-label="${soundEnabled ? 'Desligar som' : 'Ligar som'}"
+    data-action="toggle-music"
+    aria-pressed="${musicEnabled}"
+    aria-label="${musicEnabled ? 'Desligar música' : 'Ligar música'}"
   >
-    <span aria-hidden="true">${soundEnabled ? '♪' : '♫'}</span>
-    <span>${soundEnabled ? 'som ligado' : 'som'}</span>
+    <span aria-hidden="true">${musicEnabled ? '♪' : '♫'}</span>
+    <span>${musicEnabled ? 'música ligada' : 'música'}</span>
   </button>
 `
 
@@ -409,7 +473,7 @@ const iconMarkup = (kind: 'daughter' | 'william') => {
 const renderClosed = () => `
   <main class="experience closed-screen">
     <canvas id="soft-petals" aria-hidden="true"></canvas>
-    ${renderSoundToggle()}
+    ${renderMusicToggle()}
     <section class="opening" aria-labelledby="opening-title">
       <div class="opening-photos" aria-hidden="true">
         <img class="photo-tile tile-one" src="${photo(1).src}" alt="" />
@@ -432,10 +496,30 @@ const renderClosed = () => `
   </main>
 `
 
+const renderReveal = () => `
+  <main class="experience gift-reveal-screen">
+    <canvas id="soft-petals" aria-hidden="true"></canvas>
+    ${renderMusicToggle()}
+    <section class="gift-reveal" aria-live="polite">
+      <p class="tiny">rufem os tambores...</p>
+      <div class="big-gift" aria-hidden="true">
+        <span class="big-gift-lid"></span>
+        <span class="big-gift-box"></span>
+        <span class="big-gift-ribbon"></span>
+        <span class="burst-heart burst-one"></span>
+        <span class="burst-heart burst-two"></span>
+        <span class="burst-heart burst-three"></span>
+        <span class="burst-heart burst-four"></span>
+      </div>
+      <h1>Um presente feito com amor</h1>
+    </section>
+  </main>
+`
+
 const renderBlessing = () => `
   <main class="experience blessing-screen">
     <canvas id="soft-petals" aria-hidden="true"></canvas>
-    ${renderSoundToggle()}
+    ${renderMusicToggle()}
     <section class="blessing" aria-live="polite">
       <div class="halo-photo">
         <img src="${photo(0).src}" alt="${photo(0).alt}" />
@@ -451,7 +535,7 @@ const renderBlessing = () => `
 const renderChoice = () => `
   <main class="experience choice-screen">
     <canvas id="soft-petals" aria-hidden="true"></canvas>
-    ${renderSoundToggle()}
+    ${renderMusicToggle()}
     <section class="choice" aria-labelledby="choice-title">
       <div class="choice-header">
         <p class="tiny">Escolha uma carta</p>
@@ -485,7 +569,7 @@ const renderReader = (letter: Letter, stepIndex: number) => {
   return `
     <main class="experience reader-screen ${letter.tone}">
       <canvas id="soft-petals" aria-hidden="true"></canvas>
-      ${renderSoundToggle()}
+      ${renderMusicToggle()}
       <section class="reader" aria-labelledby="reader-title">
         <button class="back-button" type="button" data-action="choose">← cartas</button>
         <div class="reader-photo" aria-hidden="true">
@@ -523,7 +607,7 @@ const renderReader = (letter: Letter, stepIndex: number) => {
 const renderClosing = () => `
   <main class="experience closing-screen">
     <canvas id="soft-petals" aria-hidden="true"></canvas>
-    ${renderSoundToggle()}
+    ${renderMusicToggle()}
     <section class="closing">
       <div class="closing-stack" aria-hidden="true">
         <img src="${photo(2).src}" alt="" />
@@ -547,6 +631,10 @@ const renderClosing = () => `
 const render = () => {
   if (screen === 'closed') {
     app.innerHTML = renderClosed()
+  }
+
+  if (screen === 'reveal') {
+    app.innerHTML = renderReveal()
   }
 
   if (screen === 'blessing') {
@@ -585,35 +673,48 @@ app.addEventListener('click', (event) => {
 
   const action = actionButton.dataset.action
 
-  if (action === 'toggle-sound') {
-    soundEnabled = !soundEnabled
+  if (action === 'toggle-music') {
+    musicEnabled = !musicEnabled
     getAudio()
       .then((audio) => {
-        if (soundEnabled) {
-          audio.startAmbient()
-          audio.playOpen()
+        if (musicEnabled) {
+          audio.startMusic()
+          audio.playGiftChime()
         } else {
-          audio.stopAmbient()
+          audio.stopMusic()
         }
         render()
       })
       .catch(() => {
-        soundEnabled = false
+        musicEnabled = false
         render()
       })
     return
   }
 
   if (action === 'open') {
-    playSound('open')
-    vibrate([18, 24, 18])
-    screen = 'blessing'
+    if (revealTimer !== null) {
+      window.clearTimeout(revealTimer)
+    }
+    playEffect('reveal')
+    vibrate([20, 30, 20, 30, 40])
+    screen = 'reveal'
     render()
+    revealTimer = window.setTimeout(() => {
+      if (screen !== 'reveal') return
+      screen = 'blessing'
+      revealTimer = null
+      render()
+    }, 3550)
     return
   }
 
   if (action === 'choose') {
-    playSound('page')
+    if (revealTimer !== null) {
+      window.clearTimeout(revealTimer)
+      revealTimer = null
+    }
+    playEffect('page')
     screen = 'choose'
     render()
     return
@@ -621,14 +722,14 @@ app.addEventListener('click', (event) => {
 
   if (action === 'start-letter') {
     const letter = actionButton.dataset.letter as LetterId | undefined
-    playSound('open')
+    playEffect('chime')
     vibrate(18)
     if (letter) startLetter(letter)
     return
   }
 
   if (action === 'next' && activeLetter) {
-    playSound('page')
+    playEffect('page')
     vibrate(10)
     activeStep = Math.min(activeStep + 1, letters[activeLetter].steps.length - 1)
     render()
@@ -636,14 +737,14 @@ app.addEventListener('click', (event) => {
   }
 
   if (action === 'previous' && activeLetter) {
-    playSound('page')
+    playEffect('page')
     activeStep = Math.max(activeStep - 1, 0)
     render()
     return
   }
 
   if (action === 'finish-letter' && activeLetter) {
-    playSound('finish')
+    playEffect('finish')
     vibrate([20, 34, 20])
     readLetters.add(activeLetter)
     if (readLetters.size === Object.keys(letters).length) {
@@ -656,7 +757,7 @@ app.addEventListener('click', (event) => {
   }
 
   if (action === 'closing') {
-    playSound('finish')
+    playEffect('finish')
     screen = 'closing'
     render()
   }
