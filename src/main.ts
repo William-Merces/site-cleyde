@@ -257,16 +257,14 @@ type SoundName =
   | 'sparkle'
   | 'pageTurn'
   | 'success'
-  | 'musicToggle'
 
 const audioSources: Record<SoundName | 'music', string> = {
   music: `${assetBase}audio/i-believe-2.mp3`,
   drumRoll: `${assetBase}audio/gift-drum-roll.mp3`,
   giftOpen: `${assetBase}audio/happy-bells-notification.mp3`,
   sparkle: `${assetBase}audio/magic-sparkle-whoosh.mp3`,
-  pageTurn: `${assetBase}audio/page-turn-chime.mp3`,
+  pageTurn: `${assetBase}audio/page-turn-single.mp3`,
   success: `${assetBase}audio/fantasy-success.mp3`,
-  musicToggle: `${assetBase}audio/magic-notification-ring.mp3`,
 }
 
 class TributeAudio {
@@ -276,12 +274,12 @@ class TributeAudio {
     drumRoll: 0.94,
     giftOpen: 0.78,
     sparkle: 0.86,
-    pageTurn: 0.72,
+    pageTurn: 0.82,
     success: 0.82,
-    musicToggle: 0.74,
   }
 
   private revealTimers: number[] = []
+  private hasPreloaded = false
 
   constructor() {
     this.music = this.createAudio(audioSources.music, 0.38, true)
@@ -291,23 +289,27 @@ class TributeAudio {
       sparkle: [this.createAudio(audioSources.sparkle, this.volumes.sparkle)],
       pageTurn: [this.createAudio(audioSources.pageTurn, this.volumes.pageTurn)],
       success: [this.createAudio(audioSources.success, this.volumes.success)],
-      musicToggle: [this.createAudio(audioSources.musicToggle, this.volumes.musicToggle)],
     }
   }
 
   async resume() {
-    this.preload()
+    if (!this.hasPreloaded) {
+      this.preload()
+    }
   }
 
   preload() {
+    if (this.hasPreloaded) return
+
     this.music.load()
     Object.values(this.sounds).forEach((pool) => {
       pool.forEach((audio) => audio.load())
     })
+    this.hasPreloaded = true
   }
 
   async startMusic() {
-    this.music.volume = 0.38
+    this.music.volume = 0.42
     await this.music.play()
   }
 
@@ -334,10 +336,6 @@ class TributeAudio {
   playFinish() {
     this.play('success')
     window.setTimeout(() => this.play('giftOpen'), 170)
-  }
-
-  playMusicToggle() {
-    this.play('musicToggle')
   }
 
   private createAudio(src: string, volume: number, loop = false) {
@@ -656,15 +654,17 @@ app.addEventListener('click', (event) => {
 
   if (action === 'toggle-music') {
     musicEnabled = !musicEnabled
+    const shouldPlayMusic = musicEnabled
+    render()
+
     getAudio()
-      .then(async (audio) => {
-        if (musicEnabled) {
-          await audio.startMusic()
-          audio.playMusicToggle()
+      .then((audio) => {
+        if (shouldPlayMusic) {
+          return audio.startMusic()
         } else {
           audio.stopMusic()
         }
-        render()
+        return undefined
       })
       .catch(() => {
         musicEnabled = false

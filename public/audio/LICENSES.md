@@ -33,17 +33,12 @@ Mixkit states that its free sound effects are royalty-free, usable in personal a
   - Source page: https://mixkit.co/free-sound-effects/magic/
   - Original file: https://assets.mixkit.co/active_storage/sfx/2350/2350-preview.mp3
 
-- `page-turn-chime.mp3`
-  - Title: Page turn chime
+- `page-turn-single.mp3`
+  - Title: Page turn single
   - Source page: https://mixkit.co/free-sound-effects/page-turn/
-  - Original file: https://assets.mixkit.co/active_storage/sfx/1106/1106-preview.mp3
+  - Original file: https://assets.mixkit.co/active_storage/sfx/1104/1104-preview.mp3
 
 - `fantasy-success.mp3`
   - Title: Fantasy game success notification
   - Source page: https://mixkit.co/free-sound-effects/magic/
   - Original file: https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3
-
-- `magic-notification-ring.mp3`
-  - Title: Magic notification ring
-  - Source page: https://mixkit.co/free-sound-effects/magic/
-  - Original file: https://assets.mixkit.co/active_storage/sfx/2344/2344-preview.mp3
