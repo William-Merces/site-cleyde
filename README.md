@@ -1,6 +1,6 @@
-# Feliz Dia das Mães, Cleide
+# Feliz Dia das Mães, Cleidy
 
-Experiência de Dia das Mães para Cleide, feita com fotos, cartas e memórias da família.
+Experiência de Dia das Mães para Cleidy, feita com fotos, cartas e memórias da família.
 
 ## Desenvolvimento
 

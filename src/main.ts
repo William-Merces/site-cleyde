@@ -28,35 +28,35 @@ const assetBase = import.meta.env.BASE_URL
 const photos: Photo[] = [
   {
     src: `${assetBase}photos/familia-cleyde-tiffany-rick-ravi-levi.jpg`,
-    alt: 'Cleide com Tiffany, Rick, Ravi e Levi juntos',
+    alt: 'Cleidy com Tiffany, Rick, Ravi e Levi juntos',
   },
   {
     src: `${assetBase}photos/cleyde-tiffany-03.jpg`,
-    alt: 'Cleide e Tiffany sorrindo juntas',
+    alt: 'Cleidy e Tiffany sorrindo juntas',
   },
   {
     src: `${assetBase}photos/cleyde-tiffany-04.jpg`,
-    alt: 'Cleide e Tiffany em um momento carinhoso',
+    alt: 'Cleidy e Tiffany em um momento carinhoso',
   },
   {
     src: `${assetBase}photos/tiffany-cleyde-02.jpg`,
-    alt: 'Tiffany e Cleide em uma foto vertical',
+    alt: 'Tiffany e Cleidy em uma foto vertical',
   },
   {
     src: `${assetBase}photos/cleyde-tiffany-ravi-levi-02.jpg`,
-    alt: 'Cleide, Tiffany, Ravi e Levi reunidos',
+    alt: 'Cleidy, Tiffany, Ravi e Levi reunidos',
   },
   {
     src: `${assetBase}photos/cleyde-tiffany-ravi-levi-01.jpg`,
-    alt: 'Cleide com Tiffany, Ravi e Levi',
+    alt: 'Cleidy com Tiffany, Ravi e Levi',
   },
   {
     src: `${assetBase}photos/cleyde-tiffany-rick-01.jpg`,
-    alt: 'Cleide, Tiffany e Rick juntos',
+    alt: 'Cleidy, Tiffany e Rick juntos',
   },
   {
     src: `${assetBase}photos/tiffany-cleyde-01.jpg`,
-    alt: 'Tiffany e Cleide juntas',
+    alt: 'Tiffany e Cleidy juntas',
   },
   {
     src: `${assetBase}photos/tiffany-ravi-levi-01.jpg`,
@@ -64,7 +64,7 @@ const photos: Photo[] = [
   },
   {
     src: `${assetBase}photos/cleyde-tiffany-05.jpg`,
-    alt: 'Cleide e Tiffany em uma lembrança antiga',
+    alt: 'Cleidy e Tiffany em uma lembrança antiga',
   },
   {
     src: `${assetBase}photos/tiffany-ravi-levi-02.jpg`,
@@ -119,7 +119,7 @@ const letters: Record<LetterId, Letter> = {
         photo: 0,
         text: [
           'Hoje eu sei que ser mãe é mais do que um título. É uma dádiva e um dever divino que, com o poder de Deus, transforma nossas almas.',
-          'Eu poderia vir ao mundo mesmo se você não fosse minha mãe, o Senhor daria um jeito. Mas o que seria da Tiffany Adriany sem Cleide Silva como sua mãe?',
+          'Eu poderia vir ao mundo mesmo se você não fosse minha mãe, o Senhor daria um jeito. Mas o que seria da Tiffany Adriany sem Cleidy Silva como sua mãe?',
         ],
       },
       {
@@ -158,7 +158,7 @@ const letters: Record<LetterId, Letter> = {
     tone: 'green',
     steps: [
       {
-        eyebrow: 'Cleide,',
+        eyebrow: 'Cleidy,',
         photo: 0,
         text: [
           'Quero expressar minha profunda gratidão por tudo o que você tem feito.',
@@ -275,7 +275,7 @@ const renderClosed = () => `
       </div>
       <div class="opening-card">
         <p class="tiny">Tiffany e William prepararam isso para você</p>
-        <h1 id="opening-title">Para Cleide</h1>
+        <h1 id="opening-title">Para Cleidy</h1>
         <button class="open-gift" type="button" data-action="open">
           <span class="gift-icon" aria-hidden="true">
             <span class="gift-lid"></span>
@@ -297,7 +297,7 @@ const renderBlessing = () => `
         <img src="${photo(0).src}" alt="${photo(0).alt}" />
       </div>
       <p class="tiny">Hoje é sobre você</p>
-      <h1>Feliz Dia das Mães, Cleide</h1>
+      <h1>Feliz Dia das Mães, Cleidy</h1>
       <p>Nós te amamos. Obrigado por ser casa, colo, luz e família.</p>
       <button type="button" data-action="choose">Ler nossas cartas</button>
     </section>
@@ -385,7 +385,7 @@ const renderClosing = () => `
       </div>
       <div class="closing-message">
         <p class="tiny">Com amor</p>
-        <h1>Feliz Dia das Mães, Cleide.</h1>
+        <h1>Feliz Dia das Mães, Cleidy.</h1>
         <p>Essa homenagem é pequena perto do que sentimos, mas foi feita para você abrir e sentir um pouco do nosso carinho.</p>
         <blockquote>
           "Deus me presenteou com quatro anjos: Rick, Tiffany, Ravi e Levi, e eu sou imensamente grata por ser a mãe de cada um deles."
