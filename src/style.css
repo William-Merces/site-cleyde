@@ -76,7 +76,7 @@ blockquote {
   color: var(--rose-dark);
   font-size: 0.75rem;
   font-weight: 900;
-  letter-spacing: 0.14em;
+  letter-spacing: 0;
   line-height: 1.2;
   text-transform: uppercase;
 }
@@ -98,7 +98,7 @@ blockquote {
   box-shadow: 0 12px 32px rgba(67, 31, 39, 0.16);
   font-size: 0.78rem;
   font-weight: 900;
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
   text-transform: uppercase;
   backdrop-filter: blur(14px);
   cursor: pointer;
@@ -222,7 +222,7 @@ blockquote {
 }
 
 .opening-card {
-  width: min(100%, 430px);
+  width: min(calc(100vw - 44px), 430px);
   min-height: 430px;
   display: grid;
   place-items: center;
@@ -252,6 +252,12 @@ blockquote {
 .opening-card h1 {
   color: var(--rose-dark);
   font-size: clamp(3rem, 17vw, 5.6rem);
+}
+
+.opening-card .tiny {
+  max-width: 260px;
+  font-size: clamp(0.68rem, 2.8vw, 0.75rem);
+  text-wrap: balance;
 }
 
 .open-gift,
@@ -354,7 +360,7 @@ blockquote {
 
 .gift-reveal .tiny {
   color: #ffe1d8;
-  animation: drumText 620ms ease-in-out 4 both;
+  animation: drumText 700ms ease-in-out 7 both;
 }
 
 .gift-reveal h1 {
@@ -364,7 +370,7 @@ blockquote {
   line-height: 0.98;
   opacity: 0;
   transform: translateY(14px);
-  animation: revealTitle 780ms ease 2.05s forwards;
+  animation: revealTitle 780ms ease 4.22s forwards;
 }
 
 .big-gift {
@@ -374,7 +380,7 @@ blockquote {
   display: grid;
   place-items: end center;
   filter: drop-shadow(0 28px 44px rgba(0, 0, 0, 0.24));
-  animation: giftShake 1.55s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation: giftShake 3.45s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 .big-gift-box,
@@ -399,7 +405,7 @@ blockquote {
   width: 86%;
   height: 18%;
   transform-origin: 12% 100%;
-  animation: lidPop 1.15s ease 1.55s forwards;
+  animation: lidPop 1.15s ease 3.42s forwards;
 }
 
 .big-gift-ribbon {
@@ -422,7 +428,7 @@ blockquote {
   background: #ffe1d8;
   opacity: 0;
   transform: translate(-50%, -50%) rotate(45deg) scale(0.7);
-  animation: heartBurst 1.25s ease 1.85s forwards;
+  animation: heartBurst 1.25s ease 3.72s forwards;
 }
 
 .burst-heart::before,
@@ -444,15 +450,15 @@ blockquote {
 }
 
 .burst-two {
-  animation-delay: 1.95s;
+  animation-delay: 3.84s;
 }
 
 .burst-three {
-  animation-delay: 2.05s;
+  animation-delay: 3.96s;
 }
 
 .burst-four {
-  animation-delay: 2.15s;
+  animation-delay: 4.08s;
 }
 
 .blessing-screen {
@@ -744,7 +750,7 @@ blockquote {
   background: var(--choice-dark);
   font-size: 0.72rem;
   font-weight: 900;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -1017,7 +1023,6 @@ blockquote {
 @keyframes drumText {
   50% {
     transform: scale(1.04);
-    letter-spacing: 0.18em;
   }
 }
 

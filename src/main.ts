@@ -251,152 +251,125 @@ let revealTimer: number | null = null
 
 const photo = (index: number) => photos[index]
 
+type SoundName =
+  | 'drumRoll'
+  | 'giftOpen'
+  | 'sparkle'
+  | 'pageTurn'
+  | 'success'
+  | 'musicToggle'
+
+const audioSources: Record<SoundName | 'music', string> = {
+  music: `${assetBase}audio/i-believe-2.mp3`,
+  drumRoll: `${assetBase}audio/gift-drum-roll.mp3`,
+  giftOpen: `${assetBase}audio/happy-bells-notification.mp3`,
+  sparkle: `${assetBase}audio/magic-sparkle-whoosh.mp3`,
+  pageTurn: `${assetBase}audio/page-turn-chime.mp3`,
+  success: `${assetBase}audio/fantasy-success.mp3`,
+  musicToggle: `${assetBase}audio/magic-notification-ring.mp3`,
+}
+
 class TributeAudio {
-  private context: AudioContext
-  private master: GainNode
-  private musicTimer: number | null = null
-  private musicBar = 0
+  private readonly music: HTMLAudioElement
+  private readonly sounds: Record<SoundName, HTMLAudioElement[]>
+  private readonly volumes: Record<SoundName, number> = {
+    drumRoll: 0.94,
+    giftOpen: 0.78,
+    sparkle: 0.86,
+    pageTurn: 0.72,
+    success: 0.82,
+    musicToggle: 0.74,
+  }
+
+  private revealTimers: number[] = []
 
   constructor() {
-    const AudioContextConstructor =
-      window.AudioContext ??
-      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
-
-    if (!AudioContextConstructor) {
-      throw new Error('AudioContext indisponível.')
+    this.music = this.createAudio(audioSources.music, 0.38, true)
+    this.sounds = {
+      drumRoll: [this.createAudio(audioSources.drumRoll, this.volumes.drumRoll)],
+      giftOpen: [this.createAudio(audioSources.giftOpen, this.volumes.giftOpen)],
+      sparkle: [this.createAudio(audioSources.sparkle, this.volumes.sparkle)],
+      pageTurn: [this.createAudio(audioSources.pageTurn, this.volumes.pageTurn)],
+      success: [this.createAudio(audioSources.success, this.volumes.success)],
+      musicToggle: [this.createAudio(audioSources.musicToggle, this.volumes.musicToggle)],
     }
-
-    this.context = new AudioContextConstructor()
-    this.master = this.context.createGain()
-    this.master.gain.value = 0.22
-    this.master.connect(this.context.destination)
   }
 
   async resume() {
-    if (this.context.state === 'suspended') {
-      await this.context.resume()
-    }
+    this.preload()
   }
 
-  startMusic() {
-    if (this.musicTimer !== null) return
+  preload() {
+    this.music.load()
+    Object.values(this.sounds).forEach((pool) => {
+      pool.forEach((audio) => audio.load())
+    })
+  }
 
-    this.playMusicBar()
-    this.musicTimer = window.setInterval(() => this.playMusicBar(), 4200)
+  async startMusic() {
+    this.music.volume = 0.38
+    await this.music.play()
   }
 
   stopMusic() {
-    if (this.musicTimer === null) return
-
-    window.clearInterval(this.musicTimer)
-    this.musicTimer = null
+    this.music.pause()
   }
 
   playGiftReveal() {
-    for (let index = 0; index < 30; index += 1) {
-      const delay = index * 0.055
-      const volume = 0.018 + index * 0.0015
-      this.playNoise(0.036, delay, volume, 900)
-      if (index % 4 === 0) {
-        this.playTone(95, 0.08, delay, 0.038, 'triangle')
-      }
-    }
-
-    this.playTone(130.81, 0.18, 1.78, 0.06, 'triangle')
-    this.playTone(261.63, 0.48, 1.92, 0.048)
-    this.playTone(329.63, 0.55, 2.05, 0.042)
-    this.playTone(392, 0.66, 2.18, 0.04)
-    this.playTone(523.25, 0.86, 2.42, 0.034)
-    this.playTone(1046.5, 0.32, 2.58, 0.018, 'triangle')
+    this.clearRevealTimers()
+    this.play('drumRoll')
+    this.queueRevealSound('sparkle', 3450)
+    this.queueRevealSound('giftOpen', 3620)
+    this.queueRevealSound('success', 3980)
   }
 
   playGiftChime() {
-    this.playTone(523.25, 0.34, 0, 0.032)
-    this.playTone(659.25, 0.42, 0.08, 0.026)
-    this.playTone(783.99, 0.52, 0.16, 0.024)
-    this.playTone(1046.5, 0.3, 0.28, 0.014, 'triangle')
+    this.play('sparkle')
   }
 
   playPaperTurn() {
-    this.playNoise(0.08, 0, 0.018, 2600)
-    this.playTone(392, 0.16, 0.02, 0.018, 'triangle')
-    this.playTone(587.33, 0.2, 0.09, 0.016, 'sine')
+    this.play('pageTurn')
   }
 
   playFinish() {
-    this.playTone(440, 0.24, 0, 0.034)
-    this.playTone(554.37, 0.32, 0.14, 0.03)
-    this.playTone(659.25, 0.56, 0.3, 0.028)
+    this.play('success')
+    window.setTimeout(() => this.play('giftOpen'), 170)
   }
 
-  private playMusicBar() {
-    const progression = [
-      [261.63, 329.63, 392],
-      [220, 329.63, 440],
-      [196, 293.66, 392],
-      [246.94, 329.63, 493.88],
-    ]
-    const chord = progression[this.musicBar % progression.length]
-    this.musicBar += 1
-
-    chord.forEach((frequency, index) => {
-      this.playTone(frequency, 3.7, index * 0.04, 0.006, 'sine')
-      this.playTone(frequency * 2, 2.4, 0.35 + index * 0.08, 0.0035, 'triangle')
-    })
-
-    const melody = [chord[1] * 2, chord[2] * 2, chord[1] * 2, chord[0] * 2, chord[2] * 1.5]
-    melody.forEach((frequency, index) => {
-      this.playTone(frequency, 0.7, 0.28 + index * 0.56, 0.011, 'triangle')
-    })
+  playMusicToggle() {
+    this.play('musicToggle')
   }
 
-  private playTone(
-    frequency: number,
-    duration: number,
-    delay = 0,
-    volume = 0.03,
-    type: OscillatorType = 'sine',
-  ) {
-    const start = this.context.currentTime + delay
-    const oscillator = this.context.createOscillator()
-    const gain = this.context.createGain()
-
-    oscillator.type = type
-    oscillator.frequency.setValueAtTime(frequency, start)
-    gain.gain.setValueAtTime(0.0001, start)
-    gain.gain.exponentialRampToValueAtTime(volume, start + 0.05)
-    gain.gain.exponentialRampToValueAtTime(0.0001, start + duration)
-    oscillator.connect(gain)
-    gain.connect(this.master)
-    oscillator.start(start)
-    oscillator.stop(start + duration + 0.04)
+  private createAudio(src: string, volume: number, loop = false) {
+    const audio = new Audio(src)
+    audio.preload = 'auto'
+    audio.volume = volume
+    audio.loop = loop
+    return audio
   }
 
-  private playNoise(duration: number, delay = 0, volume = 0.02, filterFrequency = 1200) {
-    const start = this.context.currentTime + delay
-    const bufferSize = Math.max(1, Math.floor(this.context.sampleRate * duration))
-    const buffer = this.context.createBuffer(1, bufferSize, this.context.sampleRate)
-    const data = buffer.getChannelData(0)
+  private queueRevealSound(sound: SoundName, delay: number) {
+    const timer = window.setTimeout(() => this.play(sound), delay)
+    this.revealTimers.push(timer)
+  }
 
-    for (let index = 0; index < bufferSize; index += 1) {
-      data[index] = (Math.random() * 2 - 1) * (1 - index / bufferSize)
-    }
+  private clearRevealTimers() {
+    this.revealTimers.forEach((timer) => window.clearTimeout(timer))
+    this.revealTimers = []
+  }
 
-    const source = this.context.createBufferSource()
-    const filter = this.context.createBiquadFilter()
-    const gain = this.context.createGain()
+  private play(sound: SoundName) {
+    const pool = this.sounds[sound]
+    const audio = pool.find((item) => item.paused) ?? this.cloneSound(sound)
+    audio.currentTime = 0
+    audio.volume = this.volumes[sound]
+    audio.play().catch(() => undefined)
+  }
 
-    source.buffer = buffer
-    filter.type = 'bandpass'
-    filter.frequency.setValueAtTime(filterFrequency, start)
-    filter.Q.setValueAtTime(1.6, start)
-    gain.gain.setValueAtTime(0.0001, start)
-    gain.gain.exponentialRampToValueAtTime(volume, start + 0.01)
-    gain.gain.exponentialRampToValueAtTime(0.0001, start + duration)
-    source.connect(filter)
-    filter.connect(gain)
-    gain.connect(this.master)
-    source.start(start)
+  private cloneSound(sound: SoundName) {
+    const audio = this.createAudio(audioSources[sound], this.volumes[sound])
+    this.sounds[sound].push(audio)
+    return audio
   }
 }
 
@@ -405,6 +378,14 @@ const preloadPhotos = () => {
     const image = new Image()
     image.src = src
   })
+}
+
+const preloadAudio = () => {
+  if (!tributeAudio) {
+    tributeAudio = new TributeAudio()
+  }
+
+  tributeAudio.preload()
 }
 
 const vibrate = (pattern: VibratePattern) => {
@@ -676,10 +657,10 @@ app.addEventListener('click', (event) => {
   if (action === 'toggle-music') {
     musicEnabled = !musicEnabled
     getAudio()
-      .then((audio) => {
+      .then(async (audio) => {
         if (musicEnabled) {
-          audio.startMusic()
-          audio.playGiftChime()
+          await audio.startMusic()
+          audio.playMusicToggle()
         } else {
           audio.stopMusic()
         }
@@ -705,7 +686,7 @@ app.addEventListener('click', (event) => {
       screen = 'blessing'
       revealTimer = null
       render()
-    }, 3550)
+    }, 5600)
     return
   }
 
@@ -839,4 +820,5 @@ const setupPetals = () => {
 }
 
 preloadPhotos()
+preloadAudio()
 render()
