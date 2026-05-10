@@ -10,11 +10,10 @@ Mixkit states that its free sound effects are royalty-free, usable in personal a
 
 ## Music
 
-- `i-believe-2.mp3`
-  - Title: I Believe 2
-  - Artist: Michael Ramir C.
-  - Source page: https://mixkit.co/free-stock-music/tag/family/
-  - Original file: https://assets.mixkit.co/music/955/955.mp3
+- `tiffany-cantando.mp3`
+  - Personal recording extracted from `Musica cantada por Tiffany.mp4`
+  - Segment: starts at 00:35 and lasts 01:50
+  - Processing: audio-only MP3, normalized volume, short fade in and fade out
 
 ## Sound effects
 

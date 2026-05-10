@@ -259,7 +259,7 @@ type SoundName =
   | 'success'
 
 const audioSources: Record<SoundName | 'music', string> = {
-  music: `${assetBase}audio/i-believe-2.mp3`,
+  music: `${assetBase}audio/tiffany-cantando.mp3`,
   drumRoll: `${assetBase}audio/gift-drum-roll.mp3`,
   giftOpen: `${assetBase}audio/happy-bells-notification.mp3`,
   sparkle: `${assetBase}audio/magic-sparkle-whoosh.mp3`,
@@ -313,7 +313,7 @@ class TributeAudio {
     if (!this.music.paused) return
 
     if (!this.hasStartedMusic && this.music.currentTime < 1) {
-      this.music.currentTime = 7.5
+      this.music.currentTime = 0.25
       this.hasStartedMusic = true
     }
 
