@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Coracao">
+  <rect width="64" height="64" rx="14" fill="#fff2ea"/>
+  <path
+    d="M32 51s-2.8-2.1-6.7-5.4C16.9 38.4 12 33.4 12 25.7 12 19.3 16.8 15 22.5 15c3.4 0 6.7 1.7 9.5 5.1C34.8 16.7 38.1 15 41.5 15 47.2 15 52 19.3 52 25.7c0 7.7-4.9 12.7-13.3 19.9C34.8 48.9 32 51 32 51Z"
+    fill="#b64b58"
+  />
+  <path d="M23 23c-1.9.4-3.3 1.9-3.7 3.8" fill="none" stroke="#fffaf7" stroke-width="3" stroke-linecap="round"/>
+</svg>
