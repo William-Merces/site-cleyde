@@ -70,6 +70,14 @@ const photos: Photo[] = [
     src: `${assetBase}photos/tiffany-ravi-levi-02.jpg`,
     alt: 'Tiffany, Ravi e Levi em família',
   },
+  {
+    src: `${assetBase}photos/william-e-mae.jpg`,
+    alt: 'William com sua mãe',
+  },
+  {
+    src: `${assetBase}photos/william-irmaos-mae-vo.jpg`,
+    alt: 'William com seus irmãos, sua mãe e sua vó',
+  },
 ]
 
 const letters: Record<LetterId, Letter> = {
@@ -175,7 +183,7 @@ const letters: Record<LetterId, Letter> = {
       },
       {
         eyebrow: 'Duas famílias',
-        photo: 6,
+        photo: 12,
         text: [
           'Minha mãe sempre me ensinou a olhar para a mãe da minha esposa como minha própria mãe.',
           'Ela diz que o casamento não é apenas a união de duas pessoas, mas o encontro de duas famílias.',
@@ -183,7 +191,7 @@ const letters: Record<LetterId, Letter> = {
       },
       {
         eyebrow: 'De coração aberto',
-        photo: 1,
+        photo: 11,
         text: [
           'Por isso, me sinto muito animado e de coração aberto para construir esse tipo de laço com você.',
           'Minha mãe costuma falar que, em vez de perder um filho, deseja ganhar uma filha a cada casamento, e espera que nós sejamos verdadeiros filhos para as nossas sogras.',
@@ -444,7 +452,7 @@ app.addEventListener('click', (event) => {
       if (screen !== 'blessing') return
       screen = 'choose'
       render()
-    }, 4300)
+    }, 7600)
     return
   }
 
