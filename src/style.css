@@ -423,9 +423,9 @@ blockquote {
   position: absolute;
   left: 50%;
   top: 44%;
-  width: 26px;
-  height: 26px;
-  background: #ffe1d8;
+  width: var(--heart-size, 26px);
+  height: var(--heart-size, 26px);
+  background: var(--heart-color, #ffe1d8);
   opacity: 0;
   transform: translate(-50%, -50%) rotate(45deg) scale(0.7);
   animation: heartBurst 1.25s ease 3.72s forwards;
@@ -435,18 +435,18 @@ blockquote {
 .burst-heart::after {
   content: '';
   position: absolute;
-  width: 26px;
-  height: 26px;
+  width: var(--heart-size, 26px);
+  height: var(--heart-size, 26px);
   border-radius: 50%;
-  background: #ffe1d8;
+  background: var(--heart-color, #ffe1d8);
 }
 
 .burst-heart::before {
-  left: -13px;
+  left: calc(var(--heart-size, 26px) / -2);
 }
 
 .burst-heart::after {
-  top: -13px;
+  top: calc(var(--heart-size, 26px) / -2);
 }
 
 .burst-two {
@@ -459,6 +459,38 @@ blockquote {
 
 .burst-four {
   animation-delay: 4.08s;
+}
+
+.burst-five {
+  animation-delay: 3.78s;
+}
+
+.burst-six {
+  animation-delay: 3.9s;
+}
+
+.burst-seven {
+  animation-delay: 4.02s;
+}
+
+.burst-eight {
+  animation-delay: 4.16s;
+}
+
+.burst-nine {
+  animation-delay: 4.28s;
+}
+
+.burst-ten {
+  animation-delay: 4.38s;
+}
+
+.burst-eleven {
+  animation-delay: 4.5s;
+}
+
+.burst-twelve {
+  animation-delay: 4.62s;
 }
 
 .blessing-screen {
@@ -1069,21 +1101,81 @@ blockquote {
 .burst-one {
   --heart-x: -84px;
   --heart-y: -122px;
+  --heart-color: #ffe1d8;
 }
 
 .burst-two {
   --heart-x: 78px;
   --heart-y: -138px;
+  --heart-color: #fff1d5;
 }
 
 .burst-three {
   --heart-x: -22px;
   --heart-y: -166px;
+  --heart-color: #ffd4e0;
 }
 
 .burst-four {
   --heart-x: 26px;
   --heart-y: -110px;
+  --heart-color: #ffe7a8;
+}
+
+.burst-five {
+  --heart-x: -134px;
+  --heart-y: -92px;
+  --heart-size: 20px;
+  --heart-color: #fff0e7;
+}
+
+.burst-six {
+  --heart-x: 132px;
+  --heart-y: -98px;
+  --heart-size: 21px;
+  --heart-color: #ffd4e0;
+}
+
+.burst-seven {
+  --heart-x: -118px;
+  --heart-y: -170px;
+  --heart-size: 18px;
+  --heart-color: #ffe7a8;
+}
+
+.burst-eight {
+  --heart-x: 116px;
+  --heart-y: -180px;
+  --heart-size: 18px;
+  --heart-color: #fff0e7;
+}
+
+.burst-nine {
+  --heart-x: -62px;
+  --heart-y: -210px;
+  --heart-size: 17px;
+  --heart-color: #ffd4e0;
+}
+
+.burst-ten {
+  --heart-x: 70px;
+  --heart-y: -220px;
+  --heart-size: 17px;
+  --heart-color: #fff1d5;
+}
+
+.burst-eleven {
+  --heart-x: -4px;
+  --heart-y: -238px;
+  --heart-size: 16px;
+  --heart-color: #ffe1d8;
+}
+
+.burst-twelve {
+  --heart-x: 4px;
+  --heart-y: -148px;
+  --heart-size: 22px;
+  --heart-color: #fffaf6;
 }
 
 @keyframes revealTitle {

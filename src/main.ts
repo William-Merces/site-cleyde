@@ -280,6 +280,7 @@ class TributeAudio {
 
   private revealTimers: number[] = []
   private hasPreloaded = false
+  private hasStartedMusic = false
 
   constructor() {
     this.music = this.createAudio(audioSources.music, 0.38, true)
@@ -309,7 +310,14 @@ class TributeAudio {
   }
 
   async startMusic() {
-    this.music.volume = 0.42
+    if (!this.music.paused) return
+
+    if (!this.hasStartedMusic && this.music.currentTime < 1) {
+      this.music.currentTime = 7.5
+      this.hasStartedMusic = true
+    }
+
+    this.music.volume = 0.52
     await this.music.play()
   }
 
@@ -425,6 +433,21 @@ const renderMusicToggle = () => `
   </button>
 `
 
+const burstHearts = [
+  'one',
+  'two',
+  'three',
+  'four',
+  'five',
+  'six',
+  'seven',
+  'eight',
+  'nine',
+  'ten',
+  'eleven',
+  'twelve',
+]
+
 const iconMarkup = (kind: 'daughter' | 'william') => {
   if (kind === 'daughter') {
     return `
@@ -485,10 +508,7 @@ const renderReveal = () => `
         <span class="big-gift-lid"></span>
         <span class="big-gift-box"></span>
         <span class="big-gift-ribbon"></span>
-        <span class="burst-heart burst-one"></span>
-        <span class="burst-heart burst-two"></span>
-        <span class="burst-heart burst-three"></span>
-        <span class="burst-heart burst-four"></span>
+        ${burstHearts.map((heart) => `<span class="burst-heart burst-${heart}"></span>`).join('')}
       </div>
       <h1>Um presente feito com amor</h1>
     </section>
@@ -686,7 +706,7 @@ app.addEventListener('click', (event) => {
       screen = 'blessing'
       revealTimer = null
       render()
-    }, 5600)
+    }, 8200)
     return
   }
 
