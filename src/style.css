@@ -81,6 +81,61 @@ blockquote {
   text-transform: uppercase;
 }
 
+.sound-toggle {
+  position: fixed;
+  z-index: 20;
+  top: max(14px, env(safe-area-inset-top));
+  right: max(14px, env(safe-area-inset-right));
+  min-height: 38px;
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.68);
+  border-radius: 999px;
+  padding: 0 13px;
+  color: var(--rose-dark);
+  background: rgba(255, 250, 246, 0.78);
+  box-shadow: 0 12px 32px rgba(67, 31, 39, 0.16);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  backdrop-filter: blur(14px);
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    background 180ms ease,
+    color 180ms ease;
+}
+
+.sound-toggle span:first-child {
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--cream);
+  background: var(--rose);
+  font-size: 0.88rem;
+  line-height: 1;
+}
+
+.sound-toggle.is-on {
+  color: var(--cream);
+  background: rgba(125, 41, 65, 0.82);
+}
+
+.sound-toggle.is-on span:first-child {
+  color: var(--rose-dark);
+  background: #ffe1d8;
+}
+
+.sound-toggle:hover,
+.sound-toggle:focus-visible {
+  transform: translateY(-2px);
+  outline: none;
+}
+
 .opening,
 .blessing,
 .choice,
@@ -808,6 +863,13 @@ blockquote {
   color: var(--green-dark);
   font-family: var(--serif);
   font-size: 1.18rem;
+}
+
+.closing-signature {
+  color: var(--rose-dark) !important;
+  font-family: var(--serif);
+  font-size: 1.28rem;
+  font-weight: 700;
 }
 
 .closing-message button {

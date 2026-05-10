@@ -98,7 +98,7 @@ const letters: Record<LetterId, Letter> = {
         ],
       },
       {
-        eyebrow: 'As coisas pequenas',
+        eyebrow: 'O cuidado do dia a dia',
         photo: 7,
         text: [
           'Aprendi a registrar momentos através de fotos, a ser gentil, educada, mostrar gratidão com gestos e palavras.',
@@ -106,7 +106,7 @@ const letters: Record<LetterId, Letter> = {
         ],
       },
       {
-        eyebrow: 'As coisas grandes',
+        eyebrow: 'A alegria de servir',
         photo: 2,
         text: [
           'Ao seu lado também aprendi a me arrepender, pedir perdão, perdoar, ampliar minha visão e me colocar no lugar do próximo.',
@@ -123,7 +123,7 @@ const letters: Record<LetterId, Letter> = {
         ],
       },
       {
-        eyebrow: 'O plano de Deus',
+        eyebrow: 'Ser sua filha',
         photo: 0,
         text: [
           'Hoje eu sei que ser mãe é mais do que um título. É uma dádiva e um dever divino que, com o poder de Deus, transforma nossas almas.',
@@ -131,7 +131,7 @@ const letters: Record<LetterId, Letter> = {
         ],
       },
       {
-        eyebrow: 'Tudo que sou',
+        eyebrow: 'Nossa família',
         photo: 5,
         text: [
           'Tudo o que sou devo a Deus, a você e a meu pai.',
@@ -139,7 +139,7 @@ const letters: Record<LetterId, Letter> = {
         ],
       },
       {
-        eyebrow: 'Você me prepara',
+        eyebrow: 'Preparada por você',
         photo: 4,
         text: [
           'Mesmo que você não tenha focado especificamente nisso, você me preparou para meu batismo, para entrar na casa do Senhor e para servir ao Senhor diariamente por 1 ano e meio.',
@@ -147,7 +147,7 @@ const letters: Record<LetterId, Letter> = {
         ],
       },
       {
-        eyebrow: 'Para sempre',
+        eyebrow: 'Eu te amo inefavelmente',
         photo: 10,
         text: [
           'Mãe, você me prepara para voltar à presença de Deus.',
@@ -174,7 +174,7 @@ const letters: Record<LetterId, Letter> = {
         ],
       },
       {
-        eyebrow: 'O amor dela por você',
+        eyebrow: 'O amor da Tiffany por você',
         photo: 3,
         text: [
           'O amor e o carinho que ela tem por você me comovem muito.',
@@ -182,7 +182,7 @@ const letters: Record<LetterId, Letter> = {
         ],
       },
       {
-        eyebrow: 'Duas famílias',
+        eyebrow: 'Quando duas famílias se encontram',
         photo: 12,
         text: [
           'Minha mãe sempre me ensinou a olhar para a mãe da minha esposa como minha própria mãe.',
@@ -190,7 +190,7 @@ const letters: Record<LetterId, Letter> = {
         ],
       },
       {
-        eyebrow: 'De coração aberto',
+        eyebrow: 'De coração aberto para você',
         photo: 11,
         text: [
           'Por isso, me sinto muito animado e de coração aberto para construir esse tipo de laço com você.',
@@ -199,7 +199,7 @@ const letters: Record<LetterId, Letter> = {
         ],
       },
       {
-        eyebrow: 'O amor de mãe',
+        eyebrow: 'Um amor que não para',
         photo: 2,
         text: [
           'Algo que me chama muita atenção na maternidade é que ela é o que temos de mais próximo do amor de Cristo.',
@@ -207,7 +207,7 @@ const letters: Record<LetterId, Letter> = {
         ],
       },
       {
-        eyebrow: 'Dar à luz',
+        eyebrow: 'A luz de uma mãe',
         photo: 4,
         text: [
           'Como você mesma disse: "Ela sempre vai ser minha princesinha".',
@@ -216,7 +216,7 @@ const letters: Record<LetterId, Letter> = {
         ],
       },
       {
-        eyebrow: 'Saudade de casa',
+        eyebrow: 'Saudade do seu perfume',
         photo: 7,
         text: [
           'A Tiffany sempre comenta sobre as coisas que aprendeu com você e sobre o imenso amor que sente.',
@@ -224,7 +224,7 @@ const letters: Record<LetterId, Letter> = {
         ],
       },
       {
-        eyebrow: 'Obrigado',
+        eyebrow: 'Muito obrigado',
         photo: 5,
         text: [
           'Muito obrigado por ser uma mãe tão incrível para a Tiffany e por ser uma sogra tão maravilhosa para mim.',
@@ -244,9 +244,143 @@ if (!app) {
 let screen: 'closed' | 'blessing' | 'choose' | 'letter' | 'closing' = 'closed'
 let activeLetter: LetterId | null = null
 let activeStep = 0
+let soundEnabled = false
 const readLetters = new Set<LetterId>()
+let tributeAudio: TributeAudio | null = null
 
 const photo = (index: number) => photos[index]
+
+class TributeAudio {
+  private context: AudioContext
+  private master: GainNode
+  private ambientTimer: number | null = null
+  private ambientStep = 0
+
+  constructor() {
+    const AudioContextConstructor =
+      window.AudioContext ??
+      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
+
+    if (!AudioContextConstructor) {
+      throw new Error('AudioContext indisponível.')
+    }
+
+    this.context = new AudioContextConstructor()
+    this.master = this.context.createGain()
+    this.master.gain.value = 0.18
+    this.master.connect(this.context.destination)
+  }
+
+  async resume() {
+    if (this.context.state === 'suspended') {
+      await this.context.resume()
+    }
+  }
+
+  startAmbient() {
+    if (this.ambientTimer !== null) return
+
+    this.playAmbientNote()
+    this.ambientTimer = window.setInterval(() => this.playAmbientNote(), 3100)
+  }
+
+  stopAmbient() {
+    if (this.ambientTimer === null) return
+
+    window.clearInterval(this.ambientTimer)
+    this.ambientTimer = null
+  }
+
+  playOpen() {
+    this.playTone(523.25, 0.56, 0, 0.045)
+    this.playTone(659.25, 0.64, 0.08, 0.035)
+    this.playTone(783.99, 0.74, 0.16, 0.03)
+  }
+
+  playPage() {
+    this.playTone(392, 0.18, 0, 0.028, 'triangle')
+    this.playTone(587.33, 0.22, 0.08, 0.022, 'sine')
+  }
+
+  playFinish() {
+    this.playTone(440, 0.24, 0, 0.034)
+    this.playTone(554.37, 0.32, 0.14, 0.03)
+    this.playTone(659.25, 0.56, 0.3, 0.028)
+  }
+
+  private playAmbientNote() {
+    const notes = [329.63, 392, 493.88, 587.33, 493.88, 392]
+    const frequency = notes[this.ambientStep % notes.length]
+    this.ambientStep += 1
+    this.playTone(frequency, 1.8, 0, 0.014, 'sine')
+    this.playTone(frequency * 2, 1.4, 0.18, 0.006, 'triangle')
+  }
+
+  private playTone(
+    frequency: number,
+    duration: number,
+    delay = 0,
+    volume = 0.03,
+    type: OscillatorType = 'sine',
+  ) {
+    const start = this.context.currentTime + delay
+    const oscillator = this.context.createOscillator()
+    const gain = this.context.createGain()
+
+    oscillator.type = type
+    oscillator.frequency.setValueAtTime(frequency, start)
+    gain.gain.setValueAtTime(0.0001, start)
+    gain.gain.exponentialRampToValueAtTime(volume, start + 0.05)
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + duration)
+    oscillator.connect(gain)
+    gain.connect(this.master)
+    oscillator.start(start)
+    oscillator.stop(start + duration + 0.04)
+  }
+}
+
+const preloadPhotos = () => {
+  photos.forEach(({ src }) => {
+    const image = new Image()
+    image.src = src
+  })
+}
+
+const vibrate = (pattern: VibratePattern) => {
+  if ('vibrate' in navigator) {
+    navigator.vibrate(pattern)
+  }
+}
+
+const getAudio = async () => {
+  if (!tributeAudio) {
+    tributeAudio = new TributeAudio()
+  }
+
+  await tributeAudio.resume()
+  return tributeAudio
+}
+
+const playSound = (sound: 'open' | 'page' | 'finish') => {
+  if (!soundEnabled || !tributeAudio) return
+
+  if (sound === 'open') tributeAudio.playOpen()
+  if (sound === 'page') tributeAudio.playPage()
+  if (sound === 'finish') tributeAudio.playFinish()
+}
+
+const renderSoundToggle = () => `
+  <button
+    class="sound-toggle ${soundEnabled ? 'is-on' : ''}"
+    type="button"
+    data-action="toggle-sound"
+    aria-pressed="${soundEnabled}"
+    aria-label="${soundEnabled ? 'Desligar som' : 'Ligar som'}"
+  >
+    <span aria-hidden="true">${soundEnabled ? '♪' : '♫'}</span>
+    <span>${soundEnabled ? 'som ligado' : 'som'}</span>
+  </button>
+`
 
 const iconMarkup = (kind: 'daughter' | 'william') => {
   if (kind === 'daughter') {
@@ -275,6 +409,7 @@ const iconMarkup = (kind: 'daughter' | 'william') => {
 const renderClosed = () => `
   <main class="experience closed-screen">
     <canvas id="soft-petals" aria-hidden="true"></canvas>
+    ${renderSoundToggle()}
     <section class="opening" aria-labelledby="opening-title">
       <div class="opening-photos" aria-hidden="true">
         <img class="photo-tile tile-one" src="${photo(1).src}" alt="" />
@@ -300,6 +435,7 @@ const renderClosed = () => `
 const renderBlessing = () => `
   <main class="experience blessing-screen">
     <canvas id="soft-petals" aria-hidden="true"></canvas>
+    ${renderSoundToggle()}
     <section class="blessing" aria-live="polite">
       <div class="halo-photo">
         <img src="${photo(0).src}" alt="${photo(0).alt}" />
@@ -315,6 +451,7 @@ const renderBlessing = () => `
 const renderChoice = () => `
   <main class="experience choice-screen">
     <canvas id="soft-petals" aria-hidden="true"></canvas>
+    ${renderSoundToggle()}
     <section class="choice" aria-labelledby="choice-title">
       <div class="choice-header">
         <p class="tiny">Escolha uma carta</p>
@@ -348,6 +485,7 @@ const renderReader = (letter: Letter, stepIndex: number) => {
   return `
     <main class="experience reader-screen ${letter.tone}">
       <canvas id="soft-petals" aria-hidden="true"></canvas>
+      ${renderSoundToggle()}
       <section class="reader" aria-labelledby="reader-title">
         <button class="back-button" type="button" data-action="choose">← cartas</button>
         <div class="reader-photo" aria-hidden="true">
@@ -385,6 +523,7 @@ const renderReader = (letter: Letter, stepIndex: number) => {
 const renderClosing = () => `
   <main class="experience closing-screen">
     <canvas id="soft-petals" aria-hidden="true"></canvas>
+    ${renderSoundToggle()}
     <section class="closing">
       <div class="closing-stack" aria-hidden="true">
         <img src="${photo(2).src}" alt="" />
@@ -398,6 +537,7 @@ const renderClosing = () => `
         <blockquote>
           "Deus me presenteou com quatro anjos: Rick, Tiffany, Ravi e Levi, e eu sou imensamente grata por ser a mãe de cada um deles."
         </blockquote>
+        <p class="closing-signature">Tiffany e William</p>
         <button type="button" data-action="choose">ler de novo</button>
       </div>
     </section>
@@ -445,18 +585,35 @@ app.addEventListener('click', (event) => {
 
   const action = actionButton.dataset.action
 
+  if (action === 'toggle-sound') {
+    soundEnabled = !soundEnabled
+    getAudio()
+      .then((audio) => {
+        if (soundEnabled) {
+          audio.startAmbient()
+          audio.playOpen()
+        } else {
+          audio.stopAmbient()
+        }
+        render()
+      })
+      .catch(() => {
+        soundEnabled = false
+        render()
+      })
+    return
+  }
+
   if (action === 'open') {
+    playSound('open')
+    vibrate([18, 24, 18])
     screen = 'blessing'
     render()
-    window.setTimeout(() => {
-      if (screen !== 'blessing') return
-      screen = 'choose'
-      render()
-    }, 7600)
     return
   }
 
   if (action === 'choose') {
+    playSound('page')
     screen = 'choose'
     render()
     return
@@ -464,23 +621,30 @@ app.addEventListener('click', (event) => {
 
   if (action === 'start-letter') {
     const letter = actionButton.dataset.letter as LetterId | undefined
+    playSound('open')
+    vibrate(18)
     if (letter) startLetter(letter)
     return
   }
 
   if (action === 'next' && activeLetter) {
+    playSound('page')
+    vibrate(10)
     activeStep = Math.min(activeStep + 1, letters[activeLetter].steps.length - 1)
     render()
     return
   }
 
   if (action === 'previous' && activeLetter) {
+    playSound('page')
     activeStep = Math.max(activeStep - 1, 0)
     render()
     return
   }
 
   if (action === 'finish-letter' && activeLetter) {
+    playSound('finish')
+    vibrate([20, 34, 20])
     readLetters.add(activeLetter)
     if (readLetters.size === Object.keys(letters).length) {
       screen = 'closing'
@@ -492,6 +656,7 @@ app.addEventListener('click', (event) => {
   }
 
   if (action === 'closing') {
+    playSound('finish')
     screen = 'closing'
     render()
   }
@@ -572,4 +737,5 @@ const setupPetals = () => {
   window.requestAnimationFrame(draw)
 }
 
+preloadPhotos()
 render()
