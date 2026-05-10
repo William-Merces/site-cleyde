@@ -1,6 +1,6 @@
-# Feliz Dia das Maes, Cleyde
+# Feliz Dia das Mães, Cleide
 
-Site de homenagem de Dia das Maes para Cleyde, feito com fotos, cartas e memorias da familia.
+Experiência de Dia das Mães para Cleide, feita com fotos, cartas e memórias da família.
 
 ## Desenvolvimento
 
@@ -17,4 +17,4 @@ npm run build
 
 ## Deploy
 
-O projeto ja inclui um workflow em `.github/workflows/deploy.yml` para publicar no GitHub Pages via GitHub Actions.
+O projeto já inclui um workflow em `.github/workflows/deploy.yml` para publicar no GitHub Pages via GitHub Actions.
